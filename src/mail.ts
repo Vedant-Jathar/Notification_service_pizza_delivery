@@ -32,12 +32,5 @@ export class MailTransport implements NotificationTransport {
     }
 }
 
-const mailTransport = new MailTransport()
 
-mailTransport.send({
-    to: "ram@gmail.com",
-    subject: "Order placed",
-    html: "<h1>Hey thanks for the order</h1>",
-    text: "Hey thanks for the order"
-})
 

@@ -1,1 +1,191 @@
+import mongoose from "mongoose"
 
+export interface PriceConfiguration {
+    [key: string]: {
+        priceType: "base" | "additional",
+        availableOptions: string[]
+    }
+}
+
+export interface Attribute {
+    name: string
+    widgetType: "switch" | "radio"
+    defaultValue: string
+    availableOptions: string[]
+}
+
+export interface Category {
+    _id?: string,
+    name: string
+    priceConfiguration: PriceConfiguration,
+    attributes: Attribute[]
+}
+
+export interface Attribute {
+    name: string,
+    value: string
+}
+
+export type priceConfiguration = {
+    [key: string]: {
+        priceType: string,
+        availableOptions: Record<string, number>
+    }
+}
+
+export interface Product {
+    _id?: mongoose.Types.ObjectId,
+    name: string,
+    description: string,
+    priceConfiguration: priceConfiguration,
+    attributes: [Attribute],
+    tenantId: string,
+    categoryId: string,
+    isPublished: boolean,
+    image?: string
+    _doc?: Record<string, string>
+    category: Category
+}
+
+export interface QueryParams {
+    page?: number,
+    limit?: number,
+    categoryId?: string,
+    tenantId?: string,
+    q?: string,
+    isPublished?: boolean
+}
+
+export const AttributeSchema = new mongoose.Schema<Attribute>({
+    name: {
+        type: String,
+        required: true
+    },
+    widgetType: {
+        type: String,
+        required: true,
+        enum: ["switch", "radio"],
+    },
+    availableOptions: {
+        type: [String],
+        required: true
+    },
+    defaultValue: {
+        type: String,
+        required: true
+    },
+})
+
+export const PriceConfigurationSchema = new mongoose.Schema<PriceConfiguration>({
+    priceType: {
+        type: String,
+        required: true,
+        enum: ["base", "additional"]
+    },
+    availableOptions: {
+        type: [String],
+        required: true
+    }
+})
+
+export type ImageType = {
+    file: File
+}
+
+export interface CreateProductData {
+    _id: string,
+    name: string,
+    description: string,
+    image: ImageType,
+    categoryId: string,
+    tenantId: number,
+    priceConfiguration: typeof PriceConfigurationSchema,
+    attributes: typeof AttributeSchema,
+}
+
+export interface createCouponData {
+    _id: string,
+    title: string,
+    code: string,
+    validUpto: string,
+    tenantId: string,
+    discount: number
+}
+
+export interface Topping {
+    _id?: string;
+    name: string;
+    price: number;
+    image: string;
+    tenantId: string;
+    isPublished: boolean;
+}
+
+export enum OrderStatus {
+    RECEIVED = "received",
+    CONFIRMED = "confirmed",
+    PREPARED = "prepared",
+    OUT_FOR_DELIVERY = "out_for_delivery",
+    DELIVERED = "delivered"
+}
+
+export enum PaymentMode {
+    CARD = "card",
+    CASH = "cash",
+}
+
+export enum PaymentStatus {
+    PENDING = "pending",
+    PAID = "paid",
+    FAILED = "failed"
+}
+
+export interface CartItem {
+    product: Product
+    chosenConfig: {
+        priceConfig: {
+            [key: string]: string
+        }
+        selectedToppings: Topping[]
+    },
+    hash?: string
+    qty?: number
+    pricePerUnit?: number
+}
+
+export interface Address {
+    text: string,
+    isDefault?: boolean
+}
+
+export interface Customer {
+    userId: string,
+    firstName: string,
+    lastName: string,
+    email: string,
+    addresses?: Address[]
+}
+
+export interface Order {
+    _id: string,
+    cart: CartItem[],
+    customerId: Customer,
+    tenantId: string,
+    comment?: string,
+    address: string,
+    total: number,
+    taxes: number,
+    discount: number,
+    deliveryCharges: number,
+    paymentMode: PaymentMode,
+    paymentStatus: PaymentStatus,
+    paymentId: string,
+    orderStatus: OrderStatus,
+    createdAt: string
+}
+
+export enum OrderEvents {
+    ORDER_CREATE = "ORDER_CREATE",
+    PAYMENT_STATUS_UPDATE = "PAYMENT_STATUS_UPDATE",
+    ORDER_STATUS_UPDATE = "ORDER_STATUS_UPDATE"
+}

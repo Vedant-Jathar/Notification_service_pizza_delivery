@@ -1,5 +1,8 @@
 import { Consumer, EachMessagePayload, Kafka } from "kafkajs";
 import { MessageBroker } from "../types/broker";
+import { notificationTransportProvider } from "../factories/notification-factory";
+import { Order, OrderEvents } from "../types";
+import { getSubjectTextAndHtml } from "../handlers";
 
 export class KafkaBroker implements MessageBroker {
   private consumer: Consumer;
@@ -39,6 +42,25 @@ export class KafkaBroker implements MessageBroker {
           topic,
           partition,
         });
+
+        if (topic === "order") {
+          const order: { "event-type": OrderEvents, "message": Order } = JSON.parse(message.value.toString())
+          console.log("order", order);
+          const mailTransport = notificationTransportProvider("mail")
+          const data = getSubjectTextAndHtml(order)
+          console.log("data", data);
+          console.log("customerId.email", order["message"].customerId.email);
+
+          if (!order["message"].customerId.email) {
+            return
+          }
+          await mailTransport.send({
+            to: order["message"].customerId.email,
+            subject: data.subject,
+            text: data.text,
+            html: data.html
+          })
+        }
       },
     });
   }
