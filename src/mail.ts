@@ -10,7 +10,7 @@ export class MailTransport implements NotificationTransport {
         this.transporter = nodemailer.createTransport({
             host: config.get("mail.host"),
             port: config.get("mail.port"),
-            secure: false, // true for 465, false for other ports
+            secure: true, // true for 465, false for other ports
             auth: {
                 user: config.get("mail.auth.user"),
                 pass: config.get("mail.auth.password"),
