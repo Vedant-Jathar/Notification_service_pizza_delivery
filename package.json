@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon server.ts",
+    "dev": "cross-env NODE_ENV=development nodemon server.ts",
     "build": "tsc",
     "lint": "eslint .",
     "format": "prettier . --write"
@@ -14,6 +14,7 @@
   "license": "ISC",
   "dependencies": {
     "config": "^3.3.11",
+    "cross-env": "^10.0.0",
     "js-yaml": "^4.1.0",
     "kafkajs": "^2.2.4",
     "mongoose": "^8.17.0",

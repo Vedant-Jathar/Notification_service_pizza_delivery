@@ -10,23 +10,36 @@ export class KafkaBroker implements MessageBroker {
 
   constructor(clientId: string, brokers: string[]) {
 
-     let kafkaConfig: KafkaConfig = {
-            clientId,
-            brokers
-        }
+    let kafkaConfig: KafkaConfig = {
+      clientId,
+      brokers
+    }
 
-        if (process.env.NODE_ENV === "production") {
-            kafkaConfig = {
-                ...kafkaConfig,
-                ssl: true,
-                connectionTimeout: 45000,
-                sasl: {
-                    mechanism: "plain",
-                    username: config.get("kafka.sasl.username"),
-                    password: config.get("kafka.sasl.password")
-                }
-            }
+    if (process.env.NODE_ENV === "development") {
+      kafkaConfig = {
+        ...kafkaConfig,
+        ssl: true,
+        connectionTimeout: 45000,
+        sasl: {
+          mechanism: "plain",
+          username: config.get("kafka.sasl.username"),
+          password: config.get("kafka.sasl.password")
         }
+      }
+    }
+
+    if (process.env.NODE_ENV === "production") {
+      kafkaConfig = {
+        ...kafkaConfig,
+        ssl: true,
+        connectionTimeout: 45000,
+        sasl: {
+          mechanism: "plain",
+          username: config.get("kafka.sasl.username"),
+          password: config.get("kafka.sasl.password")
+        }
+      }
+    }
     const kafka = new Kafka(kafkaConfig);
 
     this.consumer = kafka.consumer({ groupId: clientId });
@@ -73,6 +86,9 @@ export class KafkaBroker implements MessageBroker {
           if (!order["message"].customerId.email) {
             return
           }
+
+          console.log("Mail transport:", mailTransport);
+
           await mailTransport.send({
             to: order["message"].customerId.email,
             subject: data.subject,
