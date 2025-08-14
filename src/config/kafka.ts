@@ -69,6 +69,10 @@ export class KafkaBroker implements MessageBroker {
         message,
       }: EachMessagePayload) => {
         // Logic to handle incoming messages.
+        if (!message || !message.value) {
+          return
+        }
+
         console.log({
           value: message.value.toString(),
           topic,
@@ -81,6 +85,11 @@ export class KafkaBroker implements MessageBroker {
           const mailTransport = notificationTransportProvider("mail")
           const data = getSubjectTextAndHtml(order)
           console.log("data", data);
+
+          if (!data) {
+            return
+          }
+
           console.log("customerId.email", order["message"].customerId.email);
 
           if (!order["message"].customerId.email) {
